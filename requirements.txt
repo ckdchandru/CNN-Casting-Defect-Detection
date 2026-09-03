@@ -1,0 +1,10 @@
+# Full project (Phases 1-7)
+pyyaml
+pandas
+pillow
+matplotlib
+tqdm
+scikit-learn
+torch
+torchvision
+streamlit

@@ -1,0 +1,27 @@
+# Raw dataset - large, not ours to redistribute, re-downloadable from Kaggle
+
+# Trained weights - large, reproducible via `python main.py`
+outputs/checkpoints/
+
+# Generated outputs - reproducible, not source
+outputs/gradcam/
+outputs/predictions/*.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
