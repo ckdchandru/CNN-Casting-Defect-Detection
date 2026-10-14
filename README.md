@@ -35,11 +35,11 @@ pick threshold on validation set only
 evaluate on test set once  -->  Grad-CAM + failure review
 ```
 
-- **Imbalance** - the raw data actually has more defect images than normal ones, so I kept all 3,137 normal images and randomly sampled 784 defect images to get a 4:1 ratio (about 20% defects).
-- **Leakage** - every image gets a perceptual hash. Images of the same class with the same hash go into one group, and the split is done on groups instead of single images. The code checks that no group ends up in two splits. This found 637 groups with more than one image (largest had 11).
-- **Model** - ResNet18 with ImageNet weights. Only `layer4` and the final layer are trained, the rest is frozen. Adam (lr 3e-4), batch size 32, up to 30 epochs with early stopping on validation PR-AUC (patience 5). Light augmentation: flip, rotation up to 10 degrees, small brightness/contrast changes.
-- **Loss comparison** - Experiment A uses normal cross-entropy, Experiment B weights the defect class higher based on train counts. The winner is picked by recall first, then PR-AUC, then F1.
-- **Threshold** - instead of using 0.5, I tried thresholds from 0.1 to 0.8 on the validation set and took the one with the highest recall while keeping precision at least 0.7. The test set is only used once, at the end.
+- Imbalance - the raw data actually has more defect images than normal ones, so I kept all 3,137 normal images and randomly sampled 784 defect images to get a 4:1 ratio (about 20% defects).
+- Leakage - every image gets a perceptual hash. Images of the same class with the same hash go into one group, and the split is done on groups instead of single images. The code checks that no group ends up in two splits. This found 637 groups with more than one image (largest had 11).
+- Model - ResNet18 with ImageNet weights. Only `layer4` and the final layer are trained, the rest is frozen. Adam (lr 3e-4), batch size 32, up to 30 epochs with early stopping on validation PR-AUC (patience 5). Light augmentation: flip, rotation up to 10 degrees, small brightness/contrast changes.
+- Loss comparison - Experiment A uses normal cross-entropy, Experiment B weights the defect class higher based on train counts. The winner is picked by recall first, then PR-AUC, then F1.
+- Threshold - instead of using 0.5, I tried thresholds from 0.1 to 0.8 on the validation set and took the one with the highest recall while keeping precision at least 0.7. The test set is only used once, at the end.
 
 ## Results
 
@@ -47,10 +47,10 @@ Test set: 568 images (445 normal, 123 defect)
 
 | Metric | Model (B, threshold 0.10) | Always "normal" baseline |
 |---|---|---|
-| Recall | **1.000** | 0.000 |
-| Precision | **0.976** | 0.000 |
+| Recall | 1.000 | 0.000 |
+| Precision | 0.976 | 0.000 |
 | F1 | 0.988 | 0.000 |
-| PR-AUC | **0.9997** | 0.2165 |
+| PR-AUC | 0.9997 | 0.2165 |
 | Accuracy | 0.995 | 0.784 |
 
 Confusion matrix: `[[442, 3], [0, 123]]` - every defect was caught, and 3 normal parts were flagged by mistake.
@@ -76,9 +76,9 @@ All 3 mistakes were normal parts predicted as defect. In each one the model focu
 
 ## Limitations
 
-- The 4:1 imbalance was created by me by sampling, it is not the real factory ratio.
-- The near-duplicate check only groups images with exactly the same hash, so copies that differ by a few bits are not caught.
-- Grad-CAM shows where the model looks, not why it decided.
+- The 4:1 ratio was made by sampling, not the real factory ratio
+- Near-duplicates are grouped only on an exact hash match
+- Grad-CAM was checked by eye only, there are no defect masks
 
 ## Tech Stack
 
@@ -86,23 +86,16 @@ Python, PyTorch, torchvision, scikit-learn, pandas, NumPy, Pillow, Matplotlib, S
 
 ## Project Structure
 
-```
-casting_defect_detection/
-|-- main.py                  runs the whole pipeline
-|-- configs/config.yaml      all settings
-|-- app/streamlit_app.py     demo app
-|-- src/
-|   |-- data/                image checks, imbalance, near-duplicates, split, dataset
-|   |-- models/              ResNet18 setup and loss
-|   |-- training/            training loop and A vs B selection
-|   |-- evaluation/          threshold, metrics, baseline
-|   |-- explainability/      Grad-CAM and failure review
-|   |-- utils/               config, seed, paths
-|-- data/
-|   |-- raw/                 dataset goes here (not included)
-|   |-- splits/              train / val / test CSV files
-|-- outputs/                 checkpoints, figures, heatmaps, reports
-```
+main.py runs the full pipeline and app/streamlit_app.py is the demo. All settings are in configs/config.yaml. The rest of the code is inside src:
+
+- data - finding images, duplicate checks, the 4:1 pool, grouping and splitting, dataset class
+- models - ResNet18 setup, class weights and loss
+- training - training loop, early stopping, picking A or B
+- evaluation - threshold, test metrics, baseline
+- explainability - Grad-CAM and failure review
+- utils - config, seed, paths
+
+The split files are saved in data/splits and everything else the pipeline makes goes into outputs (figures, reports, predictions). Model weights and heatmaps are not in the repo, you get them by running main.py.
 
 ## Run It
 
