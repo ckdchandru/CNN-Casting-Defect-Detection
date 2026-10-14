@@ -4,7 +4,7 @@ ResNet18 classifier that finds defects in metal casting images, with Grad-CAM to
 
 ## The Problem
 
-In a casting factory, most parts are fine and only a few have defects like cracks, holes or chipped edges. A model trained on this kind of data can get high accuracy just by calling everything "normal", which is useless because the whole point is to catch the bad parts. Missing a defect is much worse than a false alarm, so recall on the defect class matters more than accuracy.
+In a casting factory, most parts are fine and only a few have defects like blow holes, burrs or damaged edges. A model trained on this kind of data can get high accuracy just by calling everything "normal", which is useless because the whole point is to catch the bad parts. Missing a defect is much worse than a false alarm, so recall on the defect class matters more than accuracy.
 
 There was a second problem I found in the data itself. The Kaggle dataset comes with its own train and test folders, but 64 images appear in both of them as exact copies, and many other images look almost the same. If one copy lands in train and another in test, the test score looks better than it really is because the model has basically seen the answer.
 
@@ -72,7 +72,7 @@ This is only a visual check. The dataset has no pixel-level defect masks, so I c
 
 ## Failure Review
 
-All 3 mistakes were normal parts predicted as defect. In each one the model focused on a mark on the rim that looks a lot like a chipped edge. Two of them had a defect probability of about 0.10, right on the threshold, and one was 0.82.
+All 3 mistakes were normal parts predicted as defect, and in all of them the heat was on the rim. Two had a defect probability of about 0.10, right on the threshold, and the mark there looks like a chipped edge. The third was 0.82 and looks like a cosmetic mark or casting texture that is very close to a real defect.
 
 ## Limitations
 
