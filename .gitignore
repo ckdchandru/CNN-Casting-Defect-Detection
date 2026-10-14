@@ -1,0 +1,27 @@
+# dataset (download from Kaggle)
+data/raw/
+
+# model weights, too big
+outputs/checkpoints/
+*.pt
+*.pth
+
+# heatmaps for every test image (rerun main.py)
+outputs/gradcam/
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# environments
+venv/
+.venv/
+env/
+.env
+
+# editor / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,59 @@
+project:
+  name: casting-defect-detection
+  seed: 42
+data:
+  raw_dir: data/raw/casting_data
+  splits_dir: data/splits
+  class_folders:
+    defect: def_front
+    normal: ok_front
+  target_ratio: 4.0
+  locked: true
+  imbalance_ratio: 4.0013
+  minority_prevalence: 0.1999
+  train_frac: 0.7
+  val_frac: 0.15
+  test_frac: 0.15
+model:
+  num_classes: 2
+  pretrained: true
+  gradcam_layer: layer4.1.conv2
+train:
+  batch_size: 32
+  epochs: 30
+  learning_rate: 0.0003
+  patience: 5
+  image_size: 224
+  winner: B
+augmentation:
+  horizontal_flip: true
+  rotation_degrees: 10
+  brightness_jitter: 0.1
+  contrast_jitter: 0.1
+evaluation:
+  precision_floor: 0.7
+  threshold_candidates:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  threshold: 0.1
+gradcam_review:
+  verdict: PASSED
+  notes: Reviewed a 10-sample true-positive grid. Heat consistently concentrates at
+    the outer rim edge (the physical defect region) across all samples. Hot-spot position
+    varies per image rather than sitting in a fixed location, consistent with tracking
+    the actual visible flaw rather than a fixed shortcut. Center bore hole and background
+    stay cool throughout. This is a qualitative spatial-alignment check, not a quantitative
+    localization metric or proof of causality - no pixel-level ground-truth masks
+    exist for this dataset.
+paths:
+  checkpoints: outputs/checkpoints
+  figures: outputs/figures
+  gradcam: outputs/gradcam
+  predictions: outputs/predictions
+  reports: outputs/reports
